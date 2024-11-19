@@ -103,6 +103,5 @@ fn main() {
                 println!("error writing modified code to file: {}",e);
             }
         };
-        println!("modified code:\n {}", source_code);
     }
 }

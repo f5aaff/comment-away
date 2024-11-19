@@ -81,10 +81,6 @@ pub fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
 // traverses the tree, finding comments.
 pub fn strip_nodes(node: tree_sitter::Node, source_code: &mut String) {
     if node.kind() == "comment" {
-        println!(
-            "Found comment: {}",
-            &source_code[node.start_byte()..node.end_byte()]
-        );
         let start = node.start_byte();
         let end = node.end_byte();
         let comment_length = end - start;
