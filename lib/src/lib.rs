@@ -7,6 +7,7 @@ use std::path::Path;
 use tree_sitter::{Language, Parser};
 
 pub mod config;
+pub mod util;
 
 use anyhow::{Context, Result};
 // loads the library from the given shared object, wrapped to produce a Result.
