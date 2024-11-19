@@ -1,7 +1,8 @@
 use libloading::{Library, Symbol};
 use std::ffi::CString;
+use std::fs;
+use std::path::Path;
 use tree_sitter::{Language, Parser};
-
 // loads the library from the given shared object, wrapped to produce a Result.
 fn load_lib_so(path: String) -> Result<Library, anyhow::Error> {
     let library = unsafe { Library::new(path)? };
@@ -36,8 +37,7 @@ fn create_parser(language: Language) -> Result<Parser, anyhow::Error> {
     Ok(parser)
 }
 
-fn gen_tree(mut parser:Parser,source_code: &str) -> tree_sitter::Tree {
-
+fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
     let tree = parser
         .parse(source_code, None)
         .expect("Failed to parse source code");
@@ -56,6 +56,11 @@ fn traverse_tree(node: tree_sitter::Node, source_code: &str) {
         traverse_tree(child, source_code);
     }
 }
+// Helper function to read a file into a String
+fn read_file_to_string<P: AsRef<Path>>(path: P) -> Result<String, anyhow::Error> {
+    let content = fs::read_to_string(path)?;
+    Ok(content)
+}
 
 fn main() {
     // Path to the shared library
@@ -71,20 +76,16 @@ fn main() {
     // instantiate a parser from the given language
     let parser = create_parser(language).expect("Failed to set language");
 
-    let source_code = r#"
-    // This is a comment
-    function test() {
-        console.log("Hello, world!"); // Another comment
-    }
-    "#;
+    // Read source code from a file
+    let file_path = "/home/f/dev/cas/comment-away/test_source/test.js"; // Change this to your file path
+    let source_code = read_file_to_string(file_path).unwrap();
 
     // generate a tree_sitter::Tree from the source, using the parser
-    let tree = gen_tree(parser, source_code);
+    let tree = gen_tree(parser, &source_code);
 
     // grab the root node from the tree
     let root_node = tree.root_node();
 
     // Traverse and find comments
-    traverse_tree(root_node, source_code);
+    traverse_tree(root_node, &source_code);
 }
-
