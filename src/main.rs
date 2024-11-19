@@ -19,8 +19,8 @@ fn load_lib_so(path: String) -> Result<Library, anyhow::Error> {
 // to be the target (e.g tree_sitter_javascript or python_tree_sitter)
 fn find_tree_sitter_function(path: &str, target: &str) -> Result<Option<String>> {
     // Read the shared library file
-    let file = fs::read(path)
-        .with_context(|| format!("Failed to read shared library file: {}", path))?;
+    let file =
+        fs::read(path).with_context(|| format!("Failed to read shared library file: {}", path))?;
 
     // Parse the shared library as an object file
     let obj_file = object::File::parse(&*file)
@@ -29,7 +29,7 @@ fn find_tree_sitter_function(path: &str, target: &str) -> Result<Option<String>>
     // Collect all symbol names containing both "tree_sitter" and the target substring
     let mut symbols: Vec<String> = obj_file
         .symbols()
-        .filter_map(|symbol| symbol.name().ok())  // Filter out invalid symbol names
+        .filter_map(|symbol| symbol.name().ok()) // Filter out invalid symbol names
         .filter(|name| name.contains("tree_sitter") && name.contains(target))
         .map(|name| name.to_string())
         .collect();
@@ -75,12 +75,16 @@ fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
 }
 
 // traverses the tree, finding comments.
-fn traverse_tree(node: tree_sitter::Node, source_code: &str) {
+fn traverse_tree(node: tree_sitter::Node, source_code: &mut String) {
     if node.kind() == "comment" {
         println!(
             "Found comment: {}",
             &source_code[node.start_byte()..node.end_byte()]
         );
+        let start = node.start_byte();
+        let end = node.end_byte();
+        let comment_length = end - start;
+        source_code.replace_range(start..end, &" ".repeat(comment_length));
     }
 
     for child in node.children(&mut node.walk()) {
@@ -101,18 +105,19 @@ fn main() {
     let library = load_lib_so(library_path.to_string()).expect("Failed to load library");
 
     // find the symbol name within the shared object.
-    let symbol = find_tree_sitter_function(library_path, "javascript").unwrap().unwrap();
+    let symbol = find_tree_sitter_function(library_path, "javascript")
+        .unwrap()
+        .unwrap();
 
     // load the language from the library
-    let language =
-        load_language(&library, &symbol).expect("Failed to load language");
+    let language = load_language(&library, &symbol).expect("Failed to load language");
 
     // instantiate a parser from the given language
     let parser = create_parser(language).expect("Failed to set language");
 
     // Read source code from a file
     let file_path = "/home/f/dev/cas/comment-away/test_source/test.js"; // Change this to your file path
-    let source_code = read_file_to_string(file_path).unwrap();
+    let mut source_code = read_file_to_string(file_path).unwrap();
 
     // generate a tree_sitter::Tree from the source, using the parser
     let tree = gen_tree(parser, &source_code);
@@ -121,5 +126,7 @@ fn main() {
     let root_node = tree.root_node();
 
     // Traverse and find comments
-    traverse_tree(root_node, &source_code);
+    traverse_tree(root_node, &mut source_code);
+
+    println!("modified source_code:\n {}", source_code)
 }
