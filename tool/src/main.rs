@@ -4,7 +4,7 @@ use comment_away_lib::config;
 use comment_away_lib::util;
 use std::path::{Path, PathBuf};
 use std::process::exit;
-
+use std::fs;
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
@@ -16,8 +16,6 @@ struct Args {
     #[arg(short, long, default_value = "./")]
     target: String,
 
-    #[arg(short, long, default_value = "./*.so")]
-    lib_path: String,
 }
 fn main() {
     let args = Args::parse();
@@ -99,7 +97,12 @@ fn main() {
 
         // Traverse and find comments
         lib::strip_nodes(root_node, &mut source_code);
-
+        match fs::write(file, source_code.clone()){
+            Ok(_) => {},
+            Err(e) => {
+                println!("error writing modified code to file: {}",e);
+            }
+        };
         println!("modified code:\n {}", source_code);
     }
 }
