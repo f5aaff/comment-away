@@ -75,7 +75,7 @@ fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
 }
 
 // traverses the tree, finding comments.
-fn traverse_tree(node: tree_sitter::Node, source_code: &mut String) {
+fn strip_nodes(node: tree_sitter::Node, source_code: &mut String) {
     if node.kind() == "comment" {
         println!(
             "Found comment: {}",
@@ -88,13 +88,65 @@ fn traverse_tree(node: tree_sitter::Node, source_code: &mut String) {
     }
 
     for child in node.children(&mut node.walk()) {
-        traverse_tree(child, source_code);
+        strip_nodes(child, source_code);
     }
 }
 // Helper function to read a file into a String
 fn read_file_to_string<P: AsRef<Path>>(path: P) -> Result<String, anyhow::Error> {
     let content = fs::read_to_string(path)?;
     Ok(content)
+}
+
+fn strip_nodes_no_ws(node: tree_sitter::Node, source_code: &mut String, byte_offset: &mut usize) {
+    if node.kind() == "comment" {
+        let start = node.start_byte() + *byte_offset;
+        let end = node.end_byte() + *byte_offset;
+
+        // Ensure start and end are within bounds of the source_code string
+        if start <= source_code.len() && end <= source_code.len() {
+            let comment_content = &source_code[start..end];
+            println!("{}", comment_content);
+
+            let replacement = if comment_content.contains("\n") {
+                // Multi-line comment: Replace content but keep line breaks
+                comment_content
+                    .lines()
+                    .map(|line| if line.trim().is_empty() { "\n" } else { "\n" })
+                    .collect::<String>()
+            } else {
+                // Single-line or inline comment: Replace with single space if inline
+                " ".to_string()
+            };
+
+            let replacement_len = replacement.len();
+            let comment_len = comment_content.len();
+
+            // Replace the comment content with the replacement
+            source_code.replace_range(start..end, &replacement);
+
+            // Adjust byte_offset safely without underflow
+            if replacement_len >= comment_len {
+                // If replacement is larger, we add the difference
+                *byte_offset += replacement_len - comment_len;
+            } else {
+                // If replacement is shorter, subtract the difference only if it's safe
+                if *byte_offset >= (comment_len - replacement_len) {
+                    *byte_offset -= (comment_len - replacement_len);
+                }
+            }
+        } else {
+            // Log an error if indices are out of bounds
+            eprintln!(
+                "Invalid slice range: start = {}, end = {}, source_code.len() = {}",
+                start, end, source_code.len()
+            );
+        }
+    }
+
+    // Traverse the child nodes recursively, passing the adjusted byte_offset
+    for child in node.children(&mut node.walk()) {
+        strip_nodes_no_ws(child, source_code, byte_offset);
+    }
 }
 
 fn main() {
@@ -118,7 +170,6 @@ fn main() {
     // Read source code from a file
     let file_path = "/home/f/dev/cas/comment-away/test_source/test.js"; // Change this to your file path
     let mut source_code = read_file_to_string(file_path).unwrap();
-
     // generate a tree_sitter::Tree from the source, using the parser
     let tree = gen_tree(parser, &source_code);
 
@@ -126,7 +177,7 @@ fn main() {
     let root_node = tree.root_node();
 
     // Traverse and find comments
-    traverse_tree(root_node, &mut source_code);
+    strip_nodes(root_node, &mut source_code);
 
-    println!("modified source_code:\n {}", source_code)
+    println!("modified code:\n {}", source_code);
 }
