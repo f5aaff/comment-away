@@ -37,6 +37,7 @@ fn create_parser(language: Language) -> Result<Parser, anyhow::Error> {
     Ok(parser)
 }
 
+// generates a Tree_sitter::Tree from the source code, using the parser.
 fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
     let tree = parser
         .parse(source_code, None)
@@ -44,6 +45,7 @@ fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
     tree
 }
 
+// traverses the tree, finding comments.
 fn traverse_tree(node: tree_sitter::Node, source_code: &str) {
     if node.kind() == "comment" {
         println!(
