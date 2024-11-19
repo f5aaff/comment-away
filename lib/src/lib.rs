@@ -6,6 +6,8 @@ use std::fs;
 use std::path::Path;
 use tree_sitter::{Language, Parser};
 
+pub mod config;
+
 use anyhow::{Context, Result};
 // loads the library from the given shared object, wrapped to produce a Result.
 pub fn load_lib_so(path: String) -> Result<Library, anyhow::Error> {

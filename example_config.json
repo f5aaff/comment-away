@@ -1,0 +1,16 @@
+{
+    "known_languages": {
+        "python": {
+            "path": "./shared_libs/libpython.so",
+            "extension": "py"
+        },
+        "javascript": {
+            "path": "./shared_libs/libjavascript.so",
+            "extension": "js"
+        },
+        "rust": {
+            "path": "./shared_libs/librust.so",
+            "extension": "rs"
+        }
+    }
+}
