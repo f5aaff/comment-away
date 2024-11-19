@@ -1,2 +1,4 @@
 target/
 config.json
+./shared_libs
+./test_source
