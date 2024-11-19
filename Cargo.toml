@@ -1,9 +1,2 @@
-[package]
-name = "comment-away"
-version = "0.1.0"
-edition = "2021"
-[dependencies]
-tree-sitter = "0.24.4"
-libloading = "0.8.5"
-anyhow = "1.0.93"
-object = "0.36.5"
+[workspace]
+members = ["tool","lib"]

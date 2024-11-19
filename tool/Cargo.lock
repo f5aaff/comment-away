@@ -42,13 +42,6 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "comment-away"
 version = "0.1.0"
 dependencies = [
- "comment_away_lib",
-]
-
-[[package]]
-name = "comment_away_lib"
-version = "0.1.0"
-dependencies = [
  "anyhow",
  "libloading",
  "object",
