@@ -1,13 +1,42 @@
 use libloading::{Library, Symbol};
+use object::{Object, ObjectSymbol};
 use std::ffi::CString;
 use std::fs;
 use std::path::Path;
 use tree_sitter::{Language, Parser};
+
+use anyhow::{Context, Result};
 // loads the library from the given shared object, wrapped to produce a Result.
 fn load_lib_so(path: String) -> Result<Library, anyhow::Error> {
     let library = unsafe { Library::new(path)? };
 
     Ok(library)
+}
+
+// programmatically find the tree_sitter function, to use for the Language
+// load function. This searches the shared object for symbols containing both the
+// target langage and tree_sitter, and returns the shortest result, as that is likely
+// to be the target (e.g tree_sitter_javascript or python_tree_sitter)
+fn find_tree_sitter_function(path: &str, target: &str) -> Result<Option<String>> {
+    // Read the shared library file
+    let file = fs::read(path)
+        .with_context(|| format!("Failed to read shared library file: {}", path))?;
+
+    // Parse the shared library as an object file
+    let obj_file = object::File::parse(&*file)
+        .with_context(|| format!("Failed to parse object file: {}", path))?;
+
+    // Collect all symbol names containing both "tree_sitter" and the target substring
+    let mut symbols: Vec<String> = obj_file
+        .symbols()
+        .filter_map(|symbol| symbol.name().ok())  // Filter out invalid symbol names
+        .filter(|name| name.contains("tree_sitter") && name.contains(target))
+        .map(|name| name.to_string())
+        .collect();
+
+    // Return the shortest symbol or None if the list is empty
+    symbols.sort_by_key(|name| name.len());
+    Ok(symbols.into_iter().next())
 }
 
 // load the language from the library, converting the name str to a CString
@@ -71,9 +100,12 @@ fn main() {
     // load the library from the shared object
     let library = load_lib_so(library_path.to_string()).expect("Failed to load library");
 
+    // find the symbol name within the shared object.
+    let symbol = find_tree_sitter_function(library_path, "javascript").unwrap().unwrap();
+
     // load the language from the library
     let language =
-        load_language(&library, "tree_sitter_javascript").expect("Failed to load language");
+        load_language(&library, &symbol).expect("Failed to load language");
 
     // instantiate a parser from the given language
     let parser = create_parser(language).expect("Failed to set language");
