@@ -29,6 +29,7 @@ pub struct KnownLanguage {
     pub path: String,
     pub language: String,
     pub extension: String,
+    pub comment_types: Vec<String>
 }
 
 impl KnownLanguage {
@@ -37,6 +38,7 @@ impl KnownLanguage {
             path: String::new(),
             language: String::new(),
             extension: String::new(),
+            comment_types: Vec::new(),
         }
     }
 }

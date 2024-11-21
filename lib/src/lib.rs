@@ -79,8 +79,8 @@ pub fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
 }
 
 // traverses the tree, finding comments.
-pub fn strip_nodes(node: tree_sitter::Node, source_code: &mut String) {
-    if node.kind() == "comment" {
+pub fn strip_nodes(node: tree_sitter::Node, source_code: &mut String,comment_types: &Vec<String>) {
+    if comment_types.contains(&node.kind().to_string()) {
         let start = node.start_byte();
         let end = node.end_byte();
         let comment_length = end - start;
@@ -88,7 +88,7 @@ pub fn strip_nodes(node: tree_sitter::Node, source_code: &mut String) {
     }
 
     for child in node.children(&mut node.walk()) {
-        strip_nodes(child, source_code);
+        strip_nodes(child, source_code,&comment_types);
     }
 }
 

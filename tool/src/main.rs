@@ -66,6 +66,8 @@ fn main() {
         }
         let kt = kt_opt.unwrap();
 
+        let comment_types = &kt.comment_types;
+
         //// load the library from the shared object
         let library = lib::load_lib_so(kt.path.clone()).expect("Failed to load library");
         let symbol_opt = match lib::find_tree_sitter_function(&kt.path.clone(), &kt.language) {
@@ -96,7 +98,7 @@ fn main() {
         let root_node = tree.root_node();
 
         // Traverse and find comments
-        lib::strip_nodes(root_node, &mut source_code);
+        lib::strip_nodes(root_node, &mut source_code,&comment_types);
         match fs::write(file, source_code.clone()){
             Ok(_) => {},
             Err(e) => {
