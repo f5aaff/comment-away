@@ -1,16 +1,35 @@
 # comment-away
 
-## building tree-sitter shared objects:
+# Requirements
+- shouldn't be any?
 
-- I used the tree-sitter-cli tool, installed through npm:
-```npm install -g tree-sitter-cli```
+# obtaining parsers
+- the submodule "scraper"
+- this is a simple CLI tool for scraping and building the parser modules from
+the tree sitter wiki.
+- check the README under scraper/README.md
 
-- clone the repo:
-clone the repo for the desired tree-sitter module, as an example, we'll use the javascript module:
-```git clone https://github.com/tree-sitter/tree-sitter-javascript.git```
+# Building
+- Building should be as simple as running:
+```cargo build```
 
-- generate the necessary files for tree-sitter
- ```tree-sitter generate```
+# Usage
+```
+$./target/debug/comment-away --help
+Usage: comment-away [OPTIONS]
 
- - build the shared object
- ```gcc -fPIC -shared -o libjavascript.so src/parser.c src/scanner.c```
+Options:
+  -c, --config <CONFIG>  [default: config.json]
+  -t, --target <TARGET>  [default: ./]
+  -h, --help             Print help
+  -V, --version          Print version
+```
+
+- _-c Config_
+-   points at the config to use, defaults to ./config.json
+ _-t target_
+ -  target directory, defaults to current directory
+ - _-h help_
+ -  prints the help/usage message
+ - _-v version_
+ -  prints the version number of this tool
