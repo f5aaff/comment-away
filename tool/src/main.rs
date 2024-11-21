@@ -2,9 +2,9 @@ use clap::Parser;
 use comment_away_lib as lib;
 use comment_away_lib::config;
 use comment_away_lib::util;
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::exit;
-use std::fs;
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
@@ -16,6 +16,9 @@ struct Args {
     #[arg(short, long, default_value = "./")]
     target: String,
 
+    // target dir/file
+    #[arg(short, long, default_value = "false")]
+    replace_with_ws: bool,
 }
 fn main() {
     let args = Args::parse();
@@ -42,7 +45,7 @@ fn main() {
 
     for file in file_paths {
         // Get the file extension as Option<&OsStr>
-        let ext_string:String;
+        let ext_string: String;
         if let Some(extension) = file.extension() {
             // Convert the extension to &str
             if let Some(ext_str) = extension.to_str() {
@@ -96,14 +99,24 @@ fn main() {
 
         // grab the root node from the tree
         let root_node = tree.root_node();
-
-        // Traverse and find comments
-        lib::strip_nodes(root_node, &mut source_code,&comment_types);
-        match fs::write(file, source_code.clone()){
-            Ok(_) => {},
-            Err(e) => {
-                println!("error writing modified code to file: {}",e);
-            }
-        };
+        if args.replace_with_ws {
+            // Traverse and find comments
+            lib::strip_nodes(root_node, &mut source_code, &comment_types);
+            match fs::write(file, source_code.clone()) {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("error writing modified code to file: {}", e);
+                }
+            };
+        } else {
+            let mut offset = 0;
+            lib::strip_nodes_no_ws(root_node, &mut source_code, comment_types, &mut offset);
+            match fs::write(file, source_code.clone()) {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("error writing modified code to file: {}", e);
+                }
+            };
+        }
     }
 }

@@ -1,4 +1,3 @@
-
 use libloading::{Library, Symbol};
 use object::{Object, ObjectSymbol};
 use std::ffi::CString;
@@ -77,6 +76,40 @@ pub fn gen_tree(mut parser: Parser, source_code: &str) -> tree_sitter::Tree {
         .expect("Failed to parse source code");
     tree
 }
+
+pub fn strip_nodes_no_ws(
+    node: tree_sitter::Node,
+    source_code: &mut String,
+    comment_types: &Vec<String>,
+    offset: &mut isize, // Tracks the net offset created by the removals
+) {
+    if comment_types.contains(&node.kind().to_string()) {
+        let start = node.start_byte();
+        let end = node.end_byte();
+
+        // Adjust the byte range considering the current offset
+        let adjusted_start = (start as isize + *offset) as usize;
+        let adjusted_end = (end as isize + *offset) as usize;
+
+        let comment_text = &source_code[adjusted_start..adjusted_end];
+
+        // Filter out all characters except newlines
+        let replacement: String = comment_text.chars().filter(|&c| c == '\n').collect();
+
+        // Replace the comment with the replacement string
+        source_code.replace_range(adjusted_start..adjusted_end, &replacement);
+
+        // Update the offset after removal
+        let old_len = adjusted_end - adjusted_start;
+        let new_len = replacement.len();
+        *offset += new_len as isize - old_len as isize;
+    }
+
+    for child in node.children(&mut node.walk()) {
+        strip_nodes_no_ws(child, source_code, comment_types, offset);
+    }
+}
+
 
 // traverses the tree, finding comments.
 pub fn strip_nodes(node: tree_sitter::Node, source_code: &mut String,comment_types: &Vec<String>) {
