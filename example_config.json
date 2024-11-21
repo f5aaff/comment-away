@@ -1,16 +1,1 @@
-{
-    "known_languages": {
-        "python": {
-            "path": "./shared_libs/libpython.so",
-            "extension": "py"
-        },
-        "javascript": {
-            "path": "./shared_libs/libjavascript.so",
-            "extension": "js"
-        },
-        "rust": {
-            "path": "./shared_libs/librust.so",
-            "extension": "rs"
-        }
-    }
-}
+{"known_languages":{"go":{"comment_types":["comment"],"extension":"go","language":"go","path":"./shared_libs/libgo.so"},"java":{"comment_types":["block_comment","line_comment"],"extension":"java","language":"java","path":"./shared_libs/libjava.so"},"javascript":{"comment_types":["comment","html_comment"],"extension":"js","language":"javascript","path":"./shared_libs/libjavascript.so"},"python":{"comment_types":["comment"],"extension":"py","language":"python","path":"./shared_libs/libpython.so"},"rust":{"comment_types":["block_comment","inner_doc_comment_marker","line_comment","outer_doc_comment_marker","doc_comment"],"extension":"rs","language":"rust","path":"./shared_libs/librust.so"}}}
