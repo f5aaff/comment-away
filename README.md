@@ -26,10 +26,10 @@ Options:
 ```
 
 - _-c Config_
--   points at the config to use, defaults to ./config.json
+    - points at the config to use, defaults to ./config.json
  _-t target_
- -  target directory, defaults to current directory
+     - target directory, defaults to current directory
  - _-h help_
- -  prints the help/usage message
+     - prints the help/usage message
  - _-v version_
- -  prints the version number of this tool
+     - prints the version number of this tool
