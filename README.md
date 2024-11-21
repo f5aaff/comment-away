@@ -27,7 +27,7 @@ Options:
 
 - _-c Config_
     - points at the config to use, defaults to ./config.json
- _-t target_
+ - _-t target_
      - target directory, defaults to current directory
  - _-h help_
      - prints the help/usage message
