@@ -1,7 +1,10 @@
 # comment-away
 
 # Requirements
-- shouldn't be any?
+- git
+- gcc
+- openssl
+- openssl-devel
 
 # obtaining parsers
 - the submodule "scraper"

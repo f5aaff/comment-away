@@ -1,2 +1,2 @@
 [workspace]
-members = ["tool","lib"]
+members = ["tool","lib","scraper"]
