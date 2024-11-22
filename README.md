@@ -7,7 +7,7 @@
 - openssl-devel
 
 # obtaining parsers
-- the submodule "scraper"
+- the submodule "scraper" produces the tool parser_scraper
 - this is a simple CLI tool for scraping and building the parser modules from
 the tree sitter wiki.
 - check the README under scraper/README.md
