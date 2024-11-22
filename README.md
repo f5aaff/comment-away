@@ -40,7 +40,8 @@ Options:
   -t, --target <TARGET>  [default: ./]
   -r, --replace-with-ws
   -h, --help             Print help
-  -V, --version          Print version```
+  -V, --version          Print version
+```
 
 - _-c Config_
     - points at the config to use, defaults to ./config.json
