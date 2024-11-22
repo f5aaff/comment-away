@@ -30,6 +30,7 @@ make sure that the paths in the config make sense, edit the node-types if you wi
 
 then, use comment-away, pointed at the target directory. It will recurse through the project, removing comments from any file that it has a matching parser for.
 
+for an example, follow the instructions found at test_src/test_src.md.
 ```
 $./target/debug/comment-away --help
 Usage: comment-away [OPTIONS]
