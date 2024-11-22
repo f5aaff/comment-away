@@ -1,3 +1,6 @@
 [submodule "scraper"]
 	path = scraper
 	url = git@github.com:f5aaff/parser_scraper
+[submodule "lib"]
+	path = lib
+	url = git@github.com:f5aaff/comment-away-lib
